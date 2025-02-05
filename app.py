@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import requests
+
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -53,6 +55,7 @@ def classify_number():
 
     fun_fact = fetch_fun_fact(number)  # Assuming you implement this
 
+    #create response object
     response = {
         "number": number,
         "is_prime": is_prime_result,
@@ -64,8 +67,12 @@ def classify_number():
     return jsonify(response), 200
 
 def fetch_fun_fact(n):
-    # Here you'd call the numbers API to get a fun fact
-    return f"{n} is a fun number!"
+    try:
+        response = requests.get(f"http://numbersapi.com/{n}/math?json")
+        if response.status_code == 200:
+            return response.json().get("text", f" No fact found for {n}")
+    except:
+        return "could not fetch {n}, is not a fun number!"
 
 if __name__ == '__main__':
     app.run(debug=True)
